@@ -1,11 +1,17 @@
 variable "region" {
-  default = "ap-south-1"
+  description = "AWS region to deploy resources into"
+  type        = string
+  default     = "ap-south-1"
 }
 
 variable "cluster_name" {
-  default = "focuslist-eks-cluster"
+  description = "EKS cluster name"
+  type        = string
+  default     = "focuslist-eks-cluster"
 }
 
 variable "ecr_repo" {
-  default = "focuslist-capstone-repo"
+  description = "ECR repository name"
+  type        = string
+  default     = "focuslist-capstone-repo"
 }
