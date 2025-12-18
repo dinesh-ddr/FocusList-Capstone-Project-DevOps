@@ -60,11 +60,6 @@ module "eks" {
 }
 
 
-
-  # (Optional) If you want to force ordering:
-  depends_on = [aws_iam_service_linked_role.eks_nodegroup]
-}
-
 resource "aws_ecr_repository" "repo" {
   name = var.ecr_repo
 
