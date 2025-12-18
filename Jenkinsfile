@@ -17,16 +17,18 @@ pipeline {
       }
     }
 
-    stage('Tool Sanity Check') {
+   stage('Tool Sanity Check') {
   steps {
     sh '''
       docker --version
       aws --version
       terraform -version
       kubectl version --client
+      java -version
     '''
   }
 }
+
 
     stage('Package') {
       steps {
