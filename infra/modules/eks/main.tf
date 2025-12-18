@@ -103,6 +103,17 @@ resource "aws_security_group_rule" "worker_ingress_https_from_cp" {
   security_group_id        = aws_security_group.worker.id
 }
 
+# Workers -> Control plane (important so nodes can join cluster cleanly)
+resource "aws_security_group_rule" "cp_ingress_https_from_workers" {
+  type                     = "ingress"
+  protocol                 = "tcp"
+  from_port                = 443
+  to_port                  = 443
+  source_security_group_id = aws_security_group.worker.id
+  security_group_id        = aws_security_group.control_plane.id
+}
+
+# Outbound: allow workers to reach internet via NAT + AWS APIs (ECR, STS, etc.)
 resource "aws_security_group_rule" "worker_egress_all" {
   type              = "egress"
   protocol          = "-1"
@@ -112,6 +123,7 @@ resource "aws_security_group_rule" "worker_egress_all" {
   security_group_id = aws_security_group.worker.id
 }
 
+# Outbound: control plane egress all (safe)
 resource "aws_security_group_rule" "cp_egress_all" {
   type              = "egress"
   protocol          = "-1"
@@ -131,7 +143,7 @@ resource "aws_eks_cluster" "this" {
 
   vpc_config {
     subnet_ids              = var.private_subnet_ids
-    security_group_ids      = [aws_security_group.control_plane.id, aws_security_group.worker.id]
+    security_group_ids      = [aws_security_group.control_plane.id] # ✅ only control-plane SG here
     endpoint_public_access  = true
     endpoint_private_access = false
   }
@@ -147,10 +159,9 @@ resource "aws_eks_cluster" "this" {
 ########################################
 resource "aws_eks_node_group" "this" {
   cluster_name    = aws_eks_cluster.this.name
-  node_group_name = "default"  # keep it simple for screenshots
+  node_group_name = "default"
   node_role_arn   = aws_iam_role.node_role.arn
-
-  subnet_ids = var.private_subnet_ids
+  subnet_ids      = var.private_subnet_ids
 
   scaling_config {
     desired_size = var.node_desired
