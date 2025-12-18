@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FocusList - ToDo</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <div>
+        <h1>FocusList</h1>
+        <p class="sub">Simple To-Do with search, delete, and submit. Saved locally.</p>
+      </div>
+      <div class="stats" aria-label="Stats">
+        <div class="pill"><span id="countAll">0</span> total</div>
+        <div class="pill"><span id="countDone">0</span> done</div>
+      </div>
+    </header>
+
+    <section class="panel">
+      <form id="todoForm" class="form" autocomplete="off">
+        <input id="todoInput" class="input" type="text" placeholder="Add a task… (e.g., Review PR #12)" />
+        <button class="btn primary" type="submit">Add</button>
+      </form>
+
+      <div class="toolbar">
+        <div class="searchWrap">
+          <input id="searchInput" class="input" type="search" placeholder="Search tasks…" />
+          <span class="hint">Tip: search is instant</span>
+        </div>
+
+        <div class="actions">
+          <button id="clearCompletedBtn" class="btn" type="button">Clear completed</button>
+          <button id="clearAllBtn" class="btn danger" type="button">Clear all</button>
+        </div>
+      </div>
+
+      <ul id="todoList" class="list" aria-label="Todo list"></ul>
+
+      <div id="emptyState" class="empty" hidden>
+        <p>No tasks yet. Add one above 👆</p>
+      </div>
+    </section>
+
+    <footer class="footer">
+      Keyboard: <kbd>Enter</kbd> add • Click task to toggle done
+    </footer>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
