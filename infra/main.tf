@@ -2,14 +2,9 @@ provider "aws" {
   region = var.region
 }
 
-# These are safe at plan-time and avoid the submodule count issue
+# ✅ Make these known at plan time (root module)
 data "aws_caller_identity" "current" {}
 data "aws_partition" "current" {}
-
-# Ensure the EKS Nodegroup Service-Linked Role exists first
-resource "aws_iam_service_linked_role" "eks_nodegroup" {
-  aws_service_name = "eks-nodegroup.amazonaws.com"
-}
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
@@ -36,6 +31,11 @@ module "vpc" {
   }
 }
 
+# Optional (safe): ensure Nodegroup service-linked role exists
+resource "aws_iam_service_linked_role" "eks_nodegroup" {
+  aws_service_name = "eks-nodegroup.amazonaws.com"
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "21.10.1"
@@ -49,13 +49,14 @@ module "eks" {
   endpoint_public_access                   = true
   enable_cluster_creator_admin_permissions = true
 
+  # ✅ Key fix: pass these into eks-managed-node-group so its internal count becomes deterministic
+  eks_managed_node_group_defaults = {
+    account_id = data.aws_caller_identity.current.account_id
+    partition  = data.aws_partition.current.partition
+  }
+
   eks_managed_node_groups = {
     default = {
-      # ✅ IMPORTANT: pass these here (supported by node-group submodule)
-      # This avoids the "Invalid count argument" crash
-      account_id = data.aws_caller_identity.current.account_id
-      partition  = data.aws_partition.current.partition
-
       instance_types = ["t3.micro"]
       min_size       = 1
       max_size       = 3
@@ -63,6 +64,7 @@ module "eks" {
     }
   }
 
+  # (Optional) If you want to force ordering:
   depends_on = [aws_iam_service_linked_role.eks_nodegroup]
 }
 
