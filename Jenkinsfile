@@ -30,6 +30,13 @@ pipeline {
         '''
       }
     }
+stage('Check AWS CLI') {
+  steps {
+    powershell '''
+      aws --version
+    '''
+  }
+}
 
     stage('Deploy to S3') {
       steps {
