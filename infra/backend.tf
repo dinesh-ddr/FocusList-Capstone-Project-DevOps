@@ -1,6 +1,6 @@
 terraform {
   backend "s3" {
-    bucket         = "tfstate-focuslistdinesh"
+    bucket         = "tfstate-focuslist-dinesh"
     key            = "focuslist/terraform.tfstate"
     region         = "ap-south-1"
     dynamodb_table = "terraform-lock"
