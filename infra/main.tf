@@ -2,6 +2,10 @@ provider "aws" {
   region = var.region
 }
 
+# Make these values known at plan time (prevents "Invalid count argument" in the EKS module)
+data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
+
 # Required for EKS Managed Node Groups.
 # Fixes: "AccessDenied: Amazon EKS Nodegroups was unable to assume the service-linked role"
 resource "aws_iam_service_linked_role" "eks_nodegroup" {
@@ -19,16 +23,16 @@ module "vpc" {
   public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
   private_subnets = ["10.0.11.0/24", "10.0.12.0/24"]
 
-  enable_nat_gateway  = true
-  single_nat_gateway  = true
+  enable_nat_gateway = true
+  single_nat_gateway = true
 
   public_subnet_tags = {
-    "kubernetes.io/role/elb"                 = "1"
+    "kubernetes.io/role/elb"                    = "1"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }
 
   private_subnet_tags = {
-    "kubernetes.io/role/internal-elb"        = "1"
+    "kubernetes.io/role/internal-elb"           = "1"
     "kubernetes.io/cluster/${var.cluster_name}" = "shared"
   }
 }
@@ -42,6 +46,10 @@ module "eks" {
 
   name               = var.cluster_name
   kubernetes_version = "1.29"
+
+  # IMPORTANT: pass these explicitly to avoid module internal count() becoming unknown
+  account_id = data.aws_caller_identity.current.account_id
+  partition  = data.aws_partition.current.partition
 
   vpc_id     = module.vpc.vpc_id
   subnet_ids = module.vpc.private_subnets
