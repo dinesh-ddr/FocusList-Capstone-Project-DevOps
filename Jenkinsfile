@@ -1,5 +1,5 @@
 pipeline {
-  agent any
+  agent { label 'capstone-agent' }
 
   stages {
     stage('Checkout') {
@@ -16,6 +16,17 @@ pipeline {
         '''
       }
     }
+
+    stage('Tool Sanity Check') {
+  steps {
+    sh '''
+      docker --version
+      aws --version
+      terraform -version
+      kubectl version --client
+    '''
+  }
+}
 
     stage('Package') {
       steps {
