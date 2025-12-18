@@ -31,10 +31,6 @@ module "vpc" {
   }
 }
 
-# Optional (safe): ensure Nodegroup service-linked role exists
-resource "aws_iam_service_linked_role" "eks_nodegroup" {
-  aws_service_name = "eks-nodegroup.amazonaws.com"
-}
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
