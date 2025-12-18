@@ -55,12 +55,10 @@ module "eks" {
       min_size       = 1
       max_size       = 3
       desired_size   = 2
-
-      # ✅ enforce ordering here instead
-      depends_on = [aws_iam_service_linked_role.eks_nodegroup]
     }
   }
 }
+
 
 
   # (Optional) If you want to force ordering:
