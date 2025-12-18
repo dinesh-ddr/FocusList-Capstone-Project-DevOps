@@ -4,7 +4,7 @@ provider "aws" {
 
 module "vpc" {
   source  = "terraform-aws-modules/vpc/aws"
-  version = "3.18.0"
+  version = "6.5.1"
   name = "focuslist-vpc"
   cidr = "10.0.0.0/16"
   azs             = ["ap-south-1a","ap-south-1b"]
