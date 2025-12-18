@@ -13,21 +13,27 @@ module "vpc" {
 }
 
 module "eks" {
-  source          = "terraform-aws-modules/eks/aws"
-  version         = "21.10.1"
+  source  = "terraform-aws-modules/eks/aws"
+  version = "21.10.1"
+
   cluster_name    = var.cluster_name
-  cluster_version = "1.27"
-  subnets         = module.vpc.private_subnets
-  vpc_id          = module.vpc.vpc_id
-  node_groups = {
+  cluster_version = "1.29"
+
+  vpc_id     = module.vpc.vpc_id
+  subnet_ids = module.vpc.private_subnets
+
+  cluster_endpoint_public_access = true
+
+  eks_managed_node_groups = {
     default = {
-      desired_capacity = 2
-      max_capacity     = 3
-      min_capacity     = 1
-      instance_type    = "t3.micro"
+      instance_types = ["t3.medium"]
+      min_size       = 1
+      max_size       = 3
+      desired_size   = 2
     }
   }
 }
+
 
 resource "aws_ecr_repository" "repo" {
   name                 = var.ecr_repo
