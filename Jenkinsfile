@@ -17,6 +17,20 @@ pipeline {
       }
     }
 
+    pipeline {
+  agent { label 'capstone-agent' }
+
+  tools {
+    git 'linux-git'
+  }
+
+  stages {
+    stage('Checkout') { steps { checkout scm } }
+    ...
+  }
+}
+
+
     stage('Tool Sanity Check') {
       steps {
         sh '''
