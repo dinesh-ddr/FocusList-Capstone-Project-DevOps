@@ -1,10 +1,12 @@
 pipeline {
   agent { label 'capstone-agent' }
 
-  stages {
-    stage('Checkout') {
-      steps { checkout scm }
-    }
+ stage('Checkout') {
+  steps {
+    git branch: 'main',
+        url: 'https://github.com/dinesh-ddr/FocusList-Capstone-Project-DevOps.git'
+  }
+}
 
     stage('Validate') {
       steps {
