@@ -49,20 +49,17 @@ module "eks" {
   endpoint_public_access                   = true
   enable_cluster_creator_admin_permissions = true
 
-  # ✅ correct (plural). Put real node group defaults here.
-  eks_managed_node_groups_defaults = {
-    instance_types = ["t3.micro"]
-  }
-
   eks_managed_node_groups = {
     default = {
-      min_size     = 1
-      max_size     = 3
-      desired_size = 2
+      instance_types = ["t3.micro"]
+      min_size       = 1
+      max_size       = 3
+      desired_size   = 2
+
+      # ✅ enforce ordering here instead
+      depends_on = [aws_iam_service_linked_role.eks_nodegroup]
     }
   }
-
-  depends_on = [aws_iam_service_linked_role.eks_nodegroup]
 }
 
 
