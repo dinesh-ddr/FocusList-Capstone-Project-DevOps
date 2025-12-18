@@ -49,20 +49,19 @@ module "eks" {
   endpoint_public_access                   = true
   enable_cluster_creator_admin_permissions = true
 
-  # ✅ Key fix: pass these into eks-managed-node-group so its internal count becomes deterministic
-  eks_managed_node_group_defaults = {
-    account_id = data.aws_caller_identity.current.account_id
-    partition  = data.aws_partition.current.partition
+  # ✅ correct name (plural) — and do NOT put account_id/partition here
+  eks_managed_node_groups_defaults = {
+    instance_types = ["t3.micro"]
   }
 
   eks_managed_node_groups = {
     default = {
-      instance_types = ["t3.micro"]
-      min_size       = 1
-      max_size       = 3
-      desired_size   = 2
+      min_size     = 1
+      max_size     = 3
+      desired_size = 2
     }
   }
+}
 
   # (Optional) If you want to force ordering:
   depends_on = [aws_iam_service_linked_role.eks_nodegroup]
