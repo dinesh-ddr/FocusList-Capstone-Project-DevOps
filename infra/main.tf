@@ -2,8 +2,11 @@ provider "aws" {
   region = var.region
 }
 
-# Ensure the EKS Nodegroup Service-Linked Role exists
-# This resolves: "Amazon EKS Nodegroups was unable to assume the service-linked role"
+# These are safe at plan-time and avoid the submodule count issue
+data "aws_caller_identity" "current" {}
+data "aws_partition" "current" {}
+
+# Ensure the EKS Nodegroup Service-Linked Role exists first
 resource "aws_iam_service_linked_role" "eks_nodegroup" {
   aws_service_name = "eks-nodegroup.amazonaws.com"
 }
@@ -19,8 +22,8 @@ module "vpc" {
   public_subnets  = ["10.0.1.0/24", "10.0.2.0/24"]
   private_subnets = ["10.0.11.0/24", "10.0.12.0/24"]
 
-  enable_nat_gateway  = true
-  single_nat_gateway  = true
+  enable_nat_gateway = true
+  single_nat_gateway = true
 
   public_subnet_tags = {
     "kubernetes.io/role/elb"                    = "1"
@@ -48,6 +51,11 @@ module "eks" {
 
   eks_managed_node_groups = {
     default = {
+      # ✅ IMPORTANT: pass these here (supported by node-group submodule)
+      # This avoids the "Invalid count argument" crash
+      account_id = data.aws_caller_identity.current.account_id
+      partition  = data.aws_partition.current.partition
+
       instance_types = ["t3.micro"]
       min_size       = 1
       max_size       = 3
@@ -55,7 +63,6 @@ module "eks" {
     }
   }
 
-  # Make sure Terraform creates the SLR first
   depends_on = [aws_iam_service_linked_role.eks_nodegroup]
 }
 
